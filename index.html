@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Scroller</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,7 +14,7 @@
       flex-direction: column;
       height: 100vh;
       background: #1a1a2e;
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'DM Sans', system-ui, sans-serif;
       color: #e0e0e0;
       overflow: hidden;
     }
@@ -125,7 +125,7 @@
       outline: none;
       background: #f7f7f5;
       color: #1f2937;
-      font-family: 'Courier New', 'Menlo', monospace;
+      font-family: 'Fira Code', 'Courier New', monospace;
       font-size: 13px;
       line-height: 1.65;
       padding: 14px 16px;
@@ -150,124 +150,192 @@
       top: 0; left: 0; right: 0;
       z-index: 10;
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-      padding: 16px 20px;
-      background: #1a1a1a;
-      border-bottom: 1px solid rgba(59,130,246,0.15);
+      align-items: center;
+      gap: 24px;
+      padding: 12px 20px;
+      background: rgba(15, 15, 15, 0.7);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+      height: fit-content;
     }
 
     .prompter-controls-row {
       display: flex;
       align-items: center;
       gap: 16px;
+      flex: 1;
     }
 
     #play-pause-btn {
       display: flex;
       align-items: center;
-      gap: 6px;
-      background: #3b82f6;
+      justify-content: center;
+      gap: 7px;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
       color: #fff;
       border: none;
-      border-radius: 6px;
-      padding: 7px 16px;
+      border-radius: 100px;
+      padding: 10px 20px;
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 600;
       font-family: inherit;
       cursor: pointer;
-      transition: background 0.18s, transform 0.1s;
-      min-width: 80px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 90px;
       user-select: none;
       flex-shrink: 0;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+      letter-spacing: 0.02em;
     }
 
-    #play-pause-btn:hover { background: #2563eb; }
-    #play-pause-btn:active { transform: scale(0.97); }
-    #play-pause-btn.playing { background: #ef4444; }
-    #play-pause-btn.playing:hover { background: #dc2626; }
+    #play-pause-btn:hover {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.45);
+      transform: translateY(-1px);
+    }
 
-    .btn-icon { font-size: 11px; }
+    #play-pause-btn:active { transform: scale(0.96); }
+
+    #play-pause-btn.playing {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    #play-pause-btn.playing:hover {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-icon {
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .btn-label {
+      font-size: 12px;
+    }
 
     .control-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      padding: 6px 12px;
+      background: rgba(45, 55, 72, 0.5);
+      border-radius: 8px;
+      border: 1px solid rgba(59, 130, 246, 0.15);
     }
 
     .control-label {
-      font-size: 11px;
-      font-weight: 500;
-      color: #6b7280;
-      letter-spacing: 0.05em;
+      font-size: 10px;
+      font-weight: 600;
+      color: #9ca3af;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       white-space: nowrap;
-      min-width: 40px;
     }
 
     .slider-wrapper {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .slider-button {
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #2d3748;
-      border: 1px solid rgba(59,130,246,0.2);
-      border-radius: 4px;
-      color: #6b7280;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 50%;
+      color: #9ca3af;
       cursor: pointer;
       font-size: 12px;
-      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      font-weight: 600;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       user-select: none;
     }
 
     .slider-button:hover {
-      background: #3d4758;
-      color: #9ca3af;
-      border-color: rgba(59,130,246,0.4);
+      background: rgba(59, 130, 246, 0.3);
+      color: #e0e0e0;
+      border-color: rgba(59, 130, 246, 0.6);
+      transform: scale(1.08);
+    }
+
+    .slider-button:active {
+      transform: scale(0.95);
     }
 
     input[type="range"] {
       -webkit-appearance: none;
       appearance: none;
-      height: 4px;
-      border-radius: 2px;
-      background: #2d3748;
+      height: 5px;
+      border-radius: 3px;
+      background: linear-gradient(to right, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.4));
       outline: none;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
-      background: #3b82f6;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
       cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-      box-shadow: 0 0 0 2px rgba(59,130,246,0.25);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 2px 8px rgba(59, 130, 246, 0.3);
+      position: relative;
+    }
+
+    input[type="range"]::-webkit-slider-thumb::before {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      background: white;
+      border-radius: 50%;
     }
 
     input[type="range"]::-webkit-slider-thumb:hover {
-      background: #2563eb;
-      transform: scale(1.15);
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 4px 12px rgba(59, 130, 246, 0.4);
+      transform: scale(1.2);
     }
 
-    #speed-slider { width: 100px; }
-    #font-size-slider { width: 80px; }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 2px 8px rgba(59, 130, 246, 0.3);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    input[type="range"]::-moz-range-thumb:hover {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.3), 0 4px 12px rgba(59, 130, 246, 0.4);
+      transform: scale(1.2);
+    }
+
+    #speed-slider { width: 110px; }
+    #font-size-slider { width: 90px; }
 
     .control-value {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 600;
-      color: #9ca3af;
-      min-width: 18px;
+      color: #e0e0e0;
+      min-width: 24px;
       text-align: right;
+      background: rgba(59, 130, 246, 0.2);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Fira Code', monospace;
     }
 
     /* Fade-out gradient at bottom */
@@ -287,7 +355,7 @@
       overflow: hidden;
       position: relative;
       cursor: pointer;
-      padding: 100px 12% 0;
+      padding: 80px 12% 0;
     }
 
     .prompter-text {
@@ -329,33 +397,29 @@
 
   <section class="prompter-panel" id="prompter-panel">
     <div class="prompter-controls">
-      <div class="prompter-controls-row">
-        <button id="play-pause-btn">
-          <span class="btn-icon">▶</span>
-          <span class="btn-label">Play</span>
-        </button>
+      <button id="play-pause-btn">
+        <span class="btn-icon">▶</span>
+        <span class="btn-label">Play</span>
+      </button>
+
+      <div class="control-group">
+        <span class="control-label">Speed</span>
+        <div class="slider-wrapper">
+          <button class="slider-button" id="speed-decrease" title="Decrease speed">−</button>
+          <input type="range" id="speed-slider" min="1" max="10" value="5">
+          <button class="slider-button" id="speed-increase" title="Increase speed">+</button>
+        </div>
+        <span class="control-value" id="speed-value">5</span>
       </div>
 
-      <div class="prompter-controls-row">
-        <div class="control-group">
-          <span class="control-label">Speed</span>
-          <div class="slider-wrapper">
-            <button class="slider-button" id="speed-decrease" title="Decrease speed">−</button>
-            <input type="range" id="speed-slider" min="1" max="10" value="5">
-            <button class="slider-button" id="speed-increase" title="Increase speed">+</button>
-          </div>
-          <span class="control-value" id="speed-value">5</span>
+      <div class="control-group">
+        <span class="control-label">Size</span>
+        <div class="slider-wrapper">
+          <button class="slider-button" id="size-decrease" title="Decrease size">−</button>
+          <input type="range" id="font-size-slider" min="40" max="96" value="48" step="8">
+          <button class="slider-button" id="size-increase" title="Increase size">+</button>
         </div>
-
-        <div class="control-group">
-          <span class="control-label">Size</span>
-          <div class="slider-wrapper">
-            <button class="slider-button" id="size-decrease" title="Decrease size">−</button>
-            <input type="range" id="font-size-slider" min="18" max="72" value="48">
-            <button class="slider-button" id="size-increase" title="Increase size">+</button>
-          </div>
-          <span class="control-value" id="font-size-value">48</span>
-        </div>
+        <span class="control-value" id="font-size-value">48px</span>
       </div>
     </div>
 
@@ -580,7 +644,7 @@
   // ── Font size slider ──
   fontSizeSlider.addEventListener('input', () => {
     state.fontSize = parseInt(fontSizeSlider.value);
-    fontSizeValue.textContent = state.fontSize;
+    fontSizeValue.textContent = state.fontSize + 'px';
     prompterText.style.fontSize   = state.fontSize + 'px';
     prompterText.style.lineHeight = (state.fontSize * 1.65) + 'px';
     renderPrompterText();
@@ -644,18 +708,18 @@
   });
 
   sizeDecrease.addEventListener('click', () => {
-    state.fontSize = Math.max(18, state.fontSize - 2);
+    state.fontSize = Math.max(40, state.fontSize - 8);
     fontSizeSlider.value = state.fontSize;
-    fontSizeValue.textContent = state.fontSize;
+    fontSizeValue.textContent = state.fontSize + 'px';
     prompterText.style.fontSize = state.fontSize + 'px';
     prompterText.style.lineHeight = (state.fontSize * 1.65) + 'px';
     renderPrompterText();
   });
 
   sizeIncrease.addEventListener('click', () => {
-    state.fontSize = Math.min(72, state.fontSize + 2);
+    state.fontSize = Math.min(96, state.fontSize + 8);
     fontSizeSlider.value = state.fontSize;
-    fontSizeValue.textContent = state.fontSize;
+    fontSizeValue.textContent = state.fontSize + 'px';
     prompterText.style.fontSize = state.fontSize + 'px';
     prompterText.style.lineHeight = (state.fontSize * 1.65) + 'px';
     renderPrompterText();
