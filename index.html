@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Scroller</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      background: #1a1a2e;
+      font-family: 'Inter', system-ui, sans-serif;
+      color: #e0e0e0;
+      overflow: hidden;
+    }
+
+    header {
+      height: 48px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      background: #111827;
+      border-left: 3px solid #3b82f6;
+      border-bottom: 1px solid rgba(59,130,246,0.2);
+    }
+
+    header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #e0e0e0;
+    }
+
+    header span {
+      margin-left: 8px;
+      font-size: 12px;
+      font-weight: 400;
+      color: #6b7280;
+      letter-spacing: 0.04em;
+    }
+
+    .workspace {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+    }
+
+    /* ── Area 1: Editor Panel ── */
+    .editor-panel {
+      width: 38%;
+      min-width: 280px;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      background: #f7f7f5;
+      border-right: none;
+      transition: width 0.3s cubic-bezier(0.4,0,0.2,1), min-width 0.3s cubic-bezier(0.4,0,0.2,1);
+      position: relative;
+    }
+
+    .editor-panel.collapsed {
+      width: 0 !important;
+      min-width: 0 !important;
+    }
+
+    /* Clip the text content but NOT the collapse button */
+    .editor-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    /* ── Collapse Toggle ── */
+    .collapse-btn {
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;
+      width: 28px;
+      height: 48px;
+      background: #1e293b;
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      font-size: 15px;
+      transition: background 0.15s, color 0.15s;
+      user-select: none;
+    }
+
+    .collapse-btn:hover {
+      background: #2d3748;
+      color: #e0e0e0;
+    }
+
+    .editor-label {
+      padding: 10px 16px 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      background: #f7f7f5;
+      border-bottom: 1px solid #e9e9e7;
+      flex-shrink: 0;
+    }
+
+    #script-input {
+      flex: 1;
+      resize: none;
+      border: none;
+      outline: none;
+      background: #f7f7f5;
+      color: #1f2937;
+      font-family: 'Courier New', 'Menlo', monospace;
+      font-size: 13px;
+      line-height: 1.65;
+      padding: 14px 16px;
+      caret-color: #3b82f6;
+    }
+
+    #script-input::placeholder { color: #c0c0b8; }
+    #script-input:focus { background: #fff; }
+
+    /* ── Area 2: Prompter Panel ── */
+    .prompter-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #080808;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .prompter-controls {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 20px;
+      background: #1a1a1a;
+      border-bottom: 1px solid rgba(59,130,246,0.15);
+    }
+
+    .prompter-controls-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    #play-pause-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.1s;
+      min-width: 80px;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    #play-pause-btn:hover { background: #2563eb; }
+    #play-pause-btn:active { transform: scale(0.97); }
+    #play-pause-btn.playing { background: #ef4444; }
+    #play-pause-btn.playing:hover { background: #dc2626; }
+
+    .btn-icon { font-size: 11px; }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #6b7280;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      min-width: 40px;
+    }
+
+    .slider-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slider-button {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #2d3748;
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 4px;
+      color: #6b7280;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      user-select: none;
+    }
+
+    .slider-button:hover {
+      background: #3d4758;
+      color: #9ca3af;
+      border-color: rgba(59,130,246,0.4);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: #2d3748;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #3b82f6;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 0 0 2px rgba(59,130,246,0.25);
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: #2563eb;
+      transform: scale(1.15);
+    }
+
+    #speed-slider { width: 100px; }
+    #font-size-slider { width: 80px; }
+
+    .control-value {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9ca3af;
+      min-width: 18px;
+      text-align: right;
+    }
+
+    /* Fade-out gradient at bottom */
+    .prompter-panel::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 0;
+      height: 80px;
+      background: linear-gradient(to top, rgba(8,8,8,0.9), transparent);
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .prompter-viewport {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      padding: 100px 12% 0;
+    }
+
+    .prompter-text {
+      font-size: 48px;
+      line-height: 1.65;
+      color: #ffffff;
+      white-space: pre-wrap;
+      word-break: break-word;
+      transform: translateY(0px);
+      will-change: transform;
+      padding-bottom: 60vh;
+      user-select: none;
+    }
+
+    .prompter-empty {
+      color: #2d3748;
+      font-style: italic;
+      font-size: 20px;
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Scroller</h1>
+  <span>Teleprompter</span>
+</header>
+
+<main class="workspace">
+
+  <section class="editor-panel" id="editor-panel">
+    <div class="editor-inner">
+      <div class="editor-label">Script</div>
+      <textarea id="script-input" placeholder="Paste or type your script here…" spellcheck="false"></textarea>
+    </div>
+    <button class="collapse-btn" id="collapse-btn" title="Collapse panel">‹</button>
+  </section>
+
+  <section class="prompter-panel" id="prompter-panel">
+    <div class="prompter-controls">
+      <div class="prompter-controls-row">
+        <button id="play-pause-btn">
+          <span class="btn-icon">▶</span>
+          <span class="btn-label">Play</span>
+        </button>
+      </div>
+
+      <div class="prompter-controls-row">
+        <div class="control-group">
+          <span class="control-label">Speed</span>
+          <div class="slider-wrapper">
+            <button class="slider-button" id="speed-decrease" title="Decrease speed">−</button>
+            <input type="range" id="speed-slider" min="1" max="10" value="5">
+            <button class="slider-button" id="speed-increase" title="Increase speed">+</button>
+          </div>
+          <span class="control-value" id="speed-value">5</span>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">Size</span>
+          <div class="slider-wrapper">
+            <button class="slider-button" id="size-decrease" title="Decrease size">−</button>
+            <input type="range" id="font-size-slider" min="18" max="72" value="48">
+            <button class="slider-button" id="size-increase" title="Increase size">+</button>
+          </div>
+          <span class="control-value" id="font-size-value">48</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="prompter-viewport" id="prompter-viewport">
+      <div class="prompter-text prompter-empty" id="prompter-text">Paste your script on the left…</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // ── DOM refs ──
+  const scriptInput     = document.getElementById('script-input');
+  const prompterText    = document.getElementById('prompter-text');
+  const prompterViewport= document.getElementById('prompter-viewport');
+  const prompterPanel   = document.getElementById('prompter-panel');
+  const playPauseBtn    = document.getElementById('play-pause-btn');
+  const btnIcon         = playPauseBtn.querySelector('.btn-icon');
+  const btnLabel        = playPauseBtn.querySelector('.btn-label');
+  const speedSlider     = document.getElementById('speed-slider');
+  const speedValue      = document.getElementById('speed-value');
+  const fontSizeSlider  = document.getElementById('font-size-slider');
+  const fontSizeValue   = document.getElementById('font-size-value');
+
+  // ── State ──
+  const state = {
+    isPlaying:     false,
+    scrollY:       0,     // translateY in px; 0 = top, negative = scrolled down
+    speed:         5,
+    fontSize:      48,
+    rafId:         null,
+    lastTimestamp: null,
+    text:          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.',
+    atEnd:         false,
+  };
+
+  // ── Hidden mirror div for textarea caret position mapping ──
+  const textMirror = document.createElement('div');
+  Object.assign(textMirror.style, {
+    position:    'absolute',
+    visibility:  'hidden',
+    pointerEvents: 'none',
+    top:         '-9999px',
+    left:        '0',
+    fontFamily:  "'Courier New', 'Menlo', monospace",
+    fontSize:    '13px',
+    lineHeight:  '1.65',
+    whiteSpace:  'pre-wrap',
+    wordBreak:   'break-word',
+    padding:     '14px 16px',
+  });
+  document.body.appendChild(textMirror);
+
+  function updateMirrorWidth() {
+    textMirror.style.width = scriptInput.offsetWidth + 'px';
+  }
+
+  // ── Speed mapping ──
+  function speedToPxPerSecond(v) {
+    // Max (v=10) ≈ 111px/s. Gentle curve for fine low-end control.
+    return Math.round(3.51 * Math.pow(v, 1.5));
+  }
+
+  // ── Scroll application ──
+  function applyScroll() {
+    prompterText.style.transform = `translateY(${state.scrollY}px)`;
+  }
+
+  function maxScroll() {
+    // How far down we can scroll (negative number)
+    const textH     = prompterText.offsetHeight;
+    const viewH     = prompterViewport.offsetHeight;
+    const readingY  = viewH * 0.38;
+    return -(textH - readingY);
+  }
+
+  // ── rAF loop ──
+  function tick(timestamp) {
+    if (!state.isPlaying) return;
+
+    if (state.lastTimestamp !== null) {
+      const delta   = timestamp - state.lastTimestamp;
+      const pxPerMs = speedToPxPerSecond(state.speed) / 1000;
+      state.scrollY -= delta * pxPerMs;
+
+      const limit = maxScroll();
+      if (state.scrollY <= limit) {
+        state.scrollY = limit;
+        applyScroll();
+        pauseScrolling();
+        state.atEnd = true;
+        return;
+      }
+    }
+
+    state.lastTimestamp = timestamp;
+    applyScroll();
+    state.rafId = requestAnimationFrame(tick);
+  }
+
+  // ── Play / Pause ──
+  function playScrolling() {
+    if (state.atEnd) {
+      state.scrollY  = 0;
+      state.atEnd    = false;
+      applyScroll();
+    }
+    state.isPlaying    = true;
+    state.lastTimestamp = null;
+    btnIcon.textContent  = '⏸';
+    btnLabel.textContent = 'Pause';
+    playPauseBtn.classList.add('playing');
+    state.rafId = requestAnimationFrame(tick);
+  }
+
+  function pauseScrolling() {
+    state.isPlaying = false;
+    cancelAnimationFrame(state.rafId);
+    state.rafId     = null;
+    btnIcon.textContent  = '▶';
+    btnLabel.textContent = 'Play';
+    playPauseBtn.classList.remove('playing');
+  }
+
+  function togglePlayPause() {
+    state.isPlaying ? pauseScrolling() : playScrolling();
+  }
+
+  // ── Render prompter text ──
+  function renderPrompterText() {
+    const totalBefore = prompterText.offsetHeight || 1;
+    const ratio       = Math.abs(state.scrollY) / totalBefore;
+
+    if (state.text.trim() === '') {
+      prompterText.textContent = 'Paste your script on the left…';
+      prompterText.classList.add('prompter-empty');
+    } else {
+      prompterText.textContent = state.text;
+      prompterText.classList.remove('prompter-empty');
+    }
+
+    requestAnimationFrame(() => {
+      const totalAfter  = prompterText.offsetHeight;
+      state.scrollY     = -(ratio * totalAfter);
+      const limit       = maxScroll();
+      state.scrollY     = Math.max(state.scrollY, limit);
+      state.scrollY     = Math.min(state.scrollY, 0);
+      applyScroll();
+    });
+  }
+
+  // ── Area 2 click: seek + pause ──
+  prompterViewport.addEventListener('click', (e) => {
+    const vpRect   = prompterViewport.getBoundingClientRect();
+    const textRect = prompterText.getBoundingClientRect();
+    const clickY   = e.clientY - vpRect.top;
+    const textY    = e.clientY - textRect.top;
+
+    // We want clicked text to land at the center
+    const centerY     = prompterViewport.offsetHeight * 0.5;
+    state.scrollY     = centerY - textY;
+    state.scrollY     = Math.min(state.scrollY, 0);
+    const limit       = maxScroll();
+    state.scrollY     = Math.max(state.scrollY, limit);
+
+    applyScroll();
+    pauseScrolling();
+    state.atEnd = false;
+  });
+
+  // ── Area 1 click: sync prompter to caret position ──
+  scriptInput.addEventListener('click', syncPrompterToTextareaClick);
+  scriptInput.addEventListener('keyup', (e) => {
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Home','End'].includes(e.key)) {
+      syncPrompterToTextareaClick();
+    }
+  });
+
+  function syncPrompterToTextareaClick() {
+    if (state.text.trim() === '') return;
+
+    const caretPos  = scriptInput.selectionStart;
+    const textBefore = state.text.substring(0, caretPos);
+
+    updateMirrorWidth();
+
+    // Measure height of text up to caret
+    textMirror.textContent = textBefore;
+    const heightBefore = textMirror.offsetHeight;
+
+    // Measure full text height
+    textMirror.textContent = state.text;
+    const heightFull   = textMirror.offsetHeight;
+
+    if (heightFull === 0) return;
+
+    const ratio      = heightBefore / heightFull;
+    const targetY    = ratio * prompterText.offsetHeight;
+    const centerY    = prompterViewport.offsetHeight * 0.5;
+
+    state.scrollY    = centerY - targetY;
+    state.scrollY    = Math.min(state.scrollY, 0);
+    const limit      = maxScroll();
+    state.scrollY    = Math.max(state.scrollY, limit);
+
+    applyScroll();
+  }
+
+  // ── Input: live text update ──
+  scriptInput.addEventListener('input', () => {
+    state.text = scriptInput.value;
+    state.atEnd = false;
+    renderPrompterText();
+  });
+
+  // ── Speed slider ──
+  speedSlider.addEventListener('input', () => {
+    state.speed = parseInt(speedSlider.value);
+    speedValue.textContent = state.speed;
+  });
+
+  // ── Font size slider ──
+  fontSizeSlider.addEventListener('input', () => {
+    state.fontSize = parseInt(fontSizeSlider.value);
+    fontSizeValue.textContent = state.fontSize;
+    prompterText.style.fontSize   = state.fontSize + 'px';
+    prompterText.style.lineHeight = (state.fontSize * 1.65) + 'px';
+    renderPrompterText();
+  });
+
+  // ── Play/Pause button ──
+  playPauseBtn.addEventListener('click', togglePlayPause);
+
+  // ── Keyboard shortcuts ──
+  document.addEventListener('keydown', (e) => {
+    if (document.activeElement === scriptInput) return;
+    if (e.code === 'Space') {
+      e.preventDefault();
+      togglePlayPause();
+    }
+    if (e.code === 'ArrowUp') {
+      e.preventDefault();
+      state.scrollY = Math.min(0, state.scrollY + 80);
+      applyScroll();
+    }
+    if (e.code === 'ArrowDown') {
+      e.preventDefault();
+      const limit = maxScroll();
+      state.scrollY = Math.max(limit, state.scrollY - 80);
+      applyScroll();
+    }
+  });
+
+  // ── Resize observer ──
+  if (window.ResizeObserver) {
+    new ResizeObserver(updateMirrorWidth).observe(scriptInput);
+  }
+
+  // ── Collapse toggle ──
+  const editorPanel = document.getElementById('editor-panel');
+  const collapseBtn = document.getElementById('collapse-btn');
+
+  collapseBtn.addEventListener('click', () => {
+    const isCollapsed = editorPanel.classList.toggle('collapsed');
+    collapseBtn.innerHTML = isCollapsed ? '›' : '‹';
+    collapseBtn.title = isCollapsed ? 'Expand panel' : 'Collapse panel';
+    setTimeout(updateMirrorWidth, 320);
+  });
+
+  // ── Slider buttons ──
+  const speedDecrease = document.getElementById('speed-decrease');
+  const speedIncrease = document.getElementById('speed-increase');
+  const sizeDecrease = document.getElementById('size-decrease');
+  const sizeIncrease = document.getElementById('size-increase');
+
+  speedDecrease.addEventListener('click', () => {
+    state.speed = Math.max(1, state.speed - 1);
+    speedSlider.value = state.speed;
+    speedValue.textContent = state.speed;
+  });
+
+  speedIncrease.addEventListener('click', () => {
+    state.speed = Math.min(10, state.speed + 1);
+    speedSlider.value = state.speed;
+    speedValue.textContent = state.speed;
+  });
+
+  sizeDecrease.addEventListener('click', () => {
+    state.fontSize = Math.max(18, state.fontSize - 2);
+    fontSizeSlider.value = state.fontSize;
+    fontSizeValue.textContent = state.fontSize;
+    prompterText.style.fontSize = state.fontSize + 'px';
+    prompterText.style.lineHeight = (state.fontSize * 1.65) + 'px';
+    renderPrompterText();
+  });
+
+  sizeIncrease.addEventListener('click', () => {
+    state.fontSize = Math.min(72, state.fontSize + 2);
+    fontSizeSlider.value = state.fontSize;
+    fontSizeValue.textContent = state.fontSize;
+    prompterText.style.fontSize = state.fontSize + 'px';
+    prompterText.style.lineHeight = (state.fontSize * 1.65) + 'px';
+    renderPrompterText();
+  });
+
+  // ── Init ──
+  updateMirrorWidth();
+  scriptInput.value = state.text;
+  renderPrompterText();
+</script>
+
+</body>
+</html>
