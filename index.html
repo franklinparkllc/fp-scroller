@@ -101,6 +101,7 @@
       flex-direction: column;
       overflow: hidden;
       min-height: 0;
+      position: relative;
     }
 
     .collapse-btn {
@@ -157,6 +158,24 @@
 
     #script-input::placeholder { color: #c4c4be; }
     #script-input:focus { background: #fff; }
+
+    .editor-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 10px 20px;
+      background: var(--editor-bg);
+      border-top: 1px solid var(--editor-border);
+      flex-shrink: 0;
+    }
+
+    .editor-version {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--editor-label);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.02em;
+    }
 
     /* ── Prompter Panel ── */
     .prompter-panel {
@@ -422,6 +441,9 @@
     <div class="editor-inner">
       <div class="editor-label">Script</div>
       <textarea id="script-input" placeholder="Paste or type your script here..." spellcheck="false"></textarea>
+    </div>
+    <div class="editor-footer">
+      <div class="editor-version">v1.0.0</div>
     </div>
     <button class="collapse-btn" id="collapse-btn" title="Collapse panel">&#8249;</button>
   </section>
