@@ -1,66 +1,75 @@
-# Scroller — Reproduction Prompt
+You are an expert web developer with a keen sense of design and spacing. When you write code you are excellent about anticipating failure modes and debugging various app states.
 
-Build a single-file teleprompter web app called **Scroller** in one `index.html` — vanilla HTML/CSS/JS only, no build step, no frameworks, no dependencies except Google Fonts (Instrument Sans + JetBrains Mono).
+I have tasked you with building a polished, modern, engaging, single-file teleprompter web app called Scroller in one index.html — vanilla HTML/CSS/JS only. No build steps, no frameworks. Use Google Fonts: Instrument Sans for prompter and for UI/Editor.
 
-## Layout
+1. Layout Architecture
 
-- Full-viewport, no page scroll. Three vertical sections: 44px header, then a flex workspace.
-- Header: dark bar, small uppercase title "SCROLLER" + muted tagline "the dumb teleprompter you never knew you wanted".
-- Workspace is split into two panels:
-  - **Left — Editor panel** (34% width, min 260px, max 480px): light cream background (`#fafaf9`), "SCRIPT" uppercase label on top, full-height `<textarea>` in JetBrains Mono 13px / 1.65 line-height, and a small footer showing a version string (`v1.0.0`).
-  - **Right — Prompter panel** (flex-1): near-black background (`#0a0a0b`), large Instrument Sans text, top-to-bottom scrolling teleprompter.
-- A narrow vertical collapse button tab sits on the right edge of the editor panel (accent purple, rounded right side) that collapses the editor to width 0 with a smooth transition, and toggles its chevron (‹ / ›).
+App Header (44px): Dark bar, flex-shrink: 0. Small uppercase title "SCROLLER" and version/tagline.
 
-## Prompter Controls
+Workspace: flex: 1; display: flex; overflow: hidden;.
 
-Floating bar pinned to the top of the right panel, with a translucent dark gradient + backdrop blur.
+Editor Panel: Width 34% (min 260px, max 480px). Background #fafaf9. Contains a textarea in Instrument Sans.
 
-- Pill-shaped Play/Pause button (88px wide). Accent purple (`#6366f1`) when paused, red (`#f43f5e`) when playing. Shows ▶ Play / ⏸ Pause.
-- A thin vertical divider.
-- Two "control group" chips (rounded, subtle white border) each containing: uppercase micro-label, a `−` button, a native range slider (custom-styled thumb with purple glow ring), a `+` button, and a mono value readout.
-  - **Speed**: range 1–10, default 5.
-  - **Size**: range 40–96, step 8, default 48, readout like `48px`.
+Collapse Mechanism: The panel must have a wrapper div for content. When collapsed, set width: 0 and min-width: 0 on the panel, but keep a 24px purple tab (.collapse-tab) visible on the right edge to allow expanding.
 
-## Prompter Viewport
+Prompter Column: flex: 1; display: flex; flex-direction: column;.
 
-- Large text (default 48px, Instrument Sans, weight 500, line-height 1.55, letter-spacing -0.01em), padded 10% horizontally and 72px top.
-- Bottom fade: `::after` pseudo-element with a vertical gradient from the background to transparent (~120px tall).
-- Top fade: `::before` pseudo-element with a similar gradient just under the controls bar.
-- Text container uses `transform: translateY(...)` for scrolling (**not** `scrollTop`). `will-change: transform`. `padding-bottom: 60vh` so the last line can reach the reading line.
-- Empty state: muted italic "Paste your script on the left…"
+Controls Bar (In-Flow): Background #131316. Sits above the stage as a natural flex child.
 
-## Scrolling Engine
+Stage: flex: 1; overflow: hidden; position: relative;.
 
-- Single `state` object holding `isPlaying`, `scrollY`, `speed`, `fontSize`, `rafId`, `lastTimestamp`, `text`, `atEnd`.
-- `requestAnimationFrame` loop. Speed curve: `pxPerSecond = round(3.51 * speed^1.5)` — non-linear so the slider feels good at both ends.
-- Reading line at 38% down the viewport. `maxScroll = -(textHeight - viewportHeight * 0.38)`. Stop + flag `atEnd` when reached; next Play resets to top.
+2. The Scrolling Engine
 
-## Interactions
+Scroll Model: Use a global state object S tracking scrollY.
 
-- Typing in the editor updates the prompter live and preserves the current scroll **ratio** across re-renders (measure height before/after, rescale `scrollY`).
-- Clicking anywhere in the prompter viewport seeks so the clicked line centers on screen, and pauses playback.
-- Clicking or arrow-keying in the editor textarea syncs the prompter to the caret: use a hidden absolutely-positioned mirror `<div>` (same font / size / line-height / padding / width as the textarea) to measure the pixel height of the text before the caret, convert that to a ratio, and map it onto the prompter text height. A `ResizeObserver` on the textarea keeps the mirror width in sync.
-- Keyboard shortcuts (only when the textarea isn't focused): **Space** toggles play/pause, **↑ / ↓** nudge scroll by 80px, clamped.
-- `−` / `+` buttons on each slider step by 1 (speed) or 8 (size), clamped. Font size changes also update `line-height: fontSize * 1.55`.
+Core Formula: translateY = readingLinePx - scrollY.
 
-## Design Tokens
+readingLinePx = 38% of stage height.
 
-CSS custom properties on `:root`:
+translateY is applied to #text-wrap.
 
-- **Dark surfaces**: `--bg-deep #0a0a0b`, `--bg-surface #131316`, `--bg-elevated #1a1a1f`
-- **Text**: `--text-primary #f0f0f2`, `--text-secondary #8a8a96`, `--text-muted #55555f`
-- **Accent**: `--accent #6366f1` with soft/glow variants
-- **Red**: `#f43f5e`
-- **Editor light theme**: `--editor-bg #fafaf9`, `--editor-text #2c2c30`, `--editor-border #e8e8e6`
-- **Radii**: 6 / 10 / 14 / pill
-- **Transition**: `0.2s cubic-bezier(0.4, 0, 0.2, 1)`
+Clamping: scrollY must stay between 0 and maxScrollY (where maxScrollY = textHeight - buffer).
 
-## Delivery
+Initialization (Critical): On window.onload, you must explicitly call the setSpeed and setSize functions to sync the DOM's initial CSS with the internal state values (e.g., ensure 48px is actually rendered at start).
 
-Ship it as a single `index.html` with `<style>` and `<script>` inline. Initialize `state.text` with a couple of paragraphs of Lorem ipsum so the app is usable on first load. No comments cluttering the CSS, but light section-divider comments (`/* ── Header ── */`) are welcome in both CSS and JS.
+3. Precision Caret Syncing
 
-## Non-Negotiables
+The "Mirror" Strategy: To sync the editor cursor with the prompter, do NOT use percentages.
 
-- Use `transform: translateY` for scrolling (never `scrollTop`).
-- Play/Pause button toggles a `.playing` class for the red state — don't inline-style the color.
-- Guard the keyboard shortcuts with `document.activeElement === scriptInput` so typing in the editor doesn't hijack Space.
+Create a hidden #prompter-mirror div.
+
+This mirror must perfectly replicate the prompter's width, font-size, font-family, line-height, and padding.
+
+On keyup or click in the editor, copy the text up to the cursor into the mirror, append a dummy <span>|</span>, and set S.scrollY = marker.offsetTop.
+
+4. Interaction & Controls
+
+Controls:
+
+Play/Pause toggle (Pill-shaped, changes from Purple to Red .playing state).
+
+Speed Chip (1–10). Size Chip (40–96).
+
+Chips include - / + buttons and a range slider.
+
+Stage Interaction: Clicking the stage calculates the distance between the click and the reading line, nudging scrollY so the clicked text jumps to the reading line.
+
+Keyboard: Space to toggle, Up/Down arrows to nudge ±60px (gate shortcuts so they don't fire while typing in the textarea).
+
+5. Design Tokens
+
+--bg-deep: #0a0a0b (Stage background)
+
+--bg-surface: #131316 (Controls background)
+
+--accent: #6366f1 (Purple buttons/tabs)
+
+--red: #f43f5e (Recording/Playing state)
+
+--editor-bg: #fafaf9
+
+Prompter Text: Instrument Sans, 500 weight, -0.01em letter spacing, 1.55 line-height.
+
+6. Delivery Requirement
+
+Single index.html. Initialize with a standard onboarding script. Ensure updateDimensions() is called on every resize and font-size change to recalculate textH correctly.
