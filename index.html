@@ -194,9 +194,9 @@
       z-index: 10;
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 20px;
-      background: linear-gradient(to bottom, rgba(10,10,11,0.92) 0%, rgba(10,10,11,0.75) 100%);
+      gap: 12px;
+      padding: 14px 24px 16px;
+      background: linear-gradient(to bottom, rgba(10,10,11,0.94) 0%, rgba(10,10,11,0.78) 100%);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-subtle);
@@ -207,12 +207,13 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      width: 88px;
+      width: 92px;
+      height: 34px;
       background: var(--accent);
       color: #fff;
       border: none;
       border-radius: var(--radius-pill);
-      padding: 8px 0;
+      padding: 0;
       font-size: 12px;
       font-weight: 600;
       font-family: inherit;
@@ -252,17 +253,18 @@
 
     .controls-divider {
       width: 1px;
-      height: 22px;
+      height: 24px;
       background: var(--border-medium);
-      margin: 0 4px;
+      margin: 0 6px;
       flex-shrink: 0;
     }
 
     .control-group {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
+      gap: 8px;
+      height: 34px;
+      padding: 0 12px;
       background: rgba(255,255,255,0.04);
       border-radius: var(--radius-md);
       border: 1px solid var(--border-subtle);
@@ -285,7 +287,7 @@
     .slider-wrapper {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
 
     .slider-button {
@@ -359,8 +361,8 @@
       transform: scale(1.15);
     }
 
-    #speed-slider { width: 90px; }
-    #font-size-slider { width: 80px; }
+    #speed-slider { width: 96px; }
+    #font-size-slider { width: 88px; }
 
     .control-value {
       font-size: 11px;
@@ -388,8 +390,8 @@
       content: '';
       position: absolute;
       left: 0; right: 0;
-      top: 48px;
-      height: 60px;
+      top: 64px;
+      height: 72px;
       background: linear-gradient(to bottom, var(--bg-deep) 0%, transparent);
       pointer-events: none;
       z-index: 5;
@@ -400,7 +402,7 @@
       overflow: hidden;
       position: relative;
       cursor: pointer;
-      padding: 72px 10% 0;
+      padding: 96px 10% 0;
     }
 
     .prompter-text {
@@ -425,6 +427,167 @@
       font-weight: 400;
     }
 
+    /* ── Reading Line ── */
+    .reading-line {
+      position: absolute;
+      left: 0; right: 0;
+      top: 38%;
+      height: 0;
+      border-top: 1px dashed rgba(99,102,241,0.35);
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    .reading-line::before,
+    .reading-line::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+    }
+
+    .reading-line::before {
+      left: 0;
+      border-left: 8px solid var(--accent);
+      transform: translateY(-50%);
+    }
+
+    .reading-line::after {
+      right: 0;
+      border-right: 8px solid var(--accent);
+      transform: translateY(-50%);
+    }
+
+    /* ── Flip / mirror modes ── */
+    .prompter-viewport.flip-x { transform: scaleX(-1); }
+    .prompter-viewport.flip-y { transform: scaleY(-1); }
+    .prompter-viewport.flip-x.flip-y { transform: scale(-1, -1); }
+
+    /* ── Icon buttons (restart, flip, fullscreen, help) ── */
+    .icon-btn {
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all var(--transition);
+      flex-shrink: 0;
+      user-select: none;
+      line-height: 1;
+    }
+
+    .icon-btn:hover {
+      background: var(--accent-soft);
+      border-color: rgba(99,102,241,0.3);
+      color: var(--text-primary);
+    }
+
+    .icon-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .controls-spacer { flex: 1; }
+
+    .icon-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    /* ── WPM readout ── */
+    .wpm-readout {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.02em;
+      padding-left: 8px;
+      border-left: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    /* ── Fullscreen mode ── */
+    body.fullscreen header,
+    body.fullscreen .editor-panel { display: none; }
+
+    /* ── Help overlay ── */
+    .help-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10,10,11,0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .help-overlay.visible { display: flex; }
+
+    .help-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-lg);
+      padding: 28px 32px;
+      min-width: 340px;
+      max-width: 420px;
+      color: var(--text-primary);
+      box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    }
+
+    .help-card h2 {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+    }
+
+    .help-card dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px 18px;
+      font-size: 13px;
+    }
+
+    .help-card dt {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 500;
+      background: var(--accent-soft);
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      justify-self: start;
+      white-space: nowrap;
+    }
+
+    .help-card dd { color: var(--text-secondary); align-self: center; }
+
+    .help-card .hint {
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 11px;
+      text-align: center;
+    }
+
   </style>
 </head>
 <body>
@@ -443,7 +606,7 @@
       <textarea id="script-input" placeholder="Paste or type your script here..." spellcheck="false"></textarea>
     </div>
     <div class="editor-footer">
-      <div class="editor-version">v1.0.0</div>
+      <div class="editor-version">v1.2.0</div>
     </div>
     <button class="collapse-btn" id="collapse-btn" title="Collapse panel">&#8249;</button>
   </section>
@@ -455,6 +618,8 @@
         <span class="btn-label">Play</span>
       </button>
 
+      <button class="icon-btn" id="restart-btn" title="Restart from top (R)">&#8634;</button>
+
       <div class="controls-divider"></div>
 
       <div class="control-group">
@@ -465,25 +630,56 @@
           <button class="slider-button" id="speed-increase" title="Increase speed">+</button>
         </div>
         <span class="control-value" id="speed-value">5</span>
+        <span class="wpm-readout" id="wpm-readout">— wpm</span>
       </div>
 
       <div class="control-group">
         <span class="control-label">Size</span>
         <div class="slider-wrapper">
           <button class="slider-button" id="size-decrease" title="Decrease size">&minus;</button>
-          <input type="range" id="font-size-slider" min="40" max="96" value="48" step="8">
+          <input type="range" id="font-size-slider" min="40" max="96" value="48" step="2">
           <button class="slider-button" id="size-increase" title="Increase size">+</button>
         </div>
-        <span class="control-value" id="font-size-value">48px</span>
+        <span class="control-value" id="font-size-value">48</span>
+      </div>
+
+      <div class="controls-spacer"></div>
+
+      <div class="icon-btn-group">
+        <button class="icon-btn" id="flip-x-btn" title="Mirror horizontally (for beam splitter)">&#8644;</button>
+        <button class="icon-btn" id="flip-y-btn" title="Flip vertically">&#8645;</button>
+      </div>
+
+      <div class="controls-divider"></div>
+
+      <div class="icon-btn-group">
+        <button class="icon-btn" id="fullscreen-btn" title="Fullscreen (F)">&#9974;</button>
+        <button class="icon-btn" id="help-btn" title="Keyboard shortcuts (?)">?</button>
       </div>
     </div>
 
     <div class="prompter-viewport" id="prompter-viewport">
+      <div class="reading-line" aria-hidden="true"></div>
       <div class="prompter-text prompter-empty" id="prompter-text">Paste your script on the left...</div>
     </div>
   </section>
 
 </main>
+
+<div class="help-overlay" id="help-overlay" aria-hidden="true">
+  <div class="help-card">
+    <h2>Keyboard Shortcuts</h2>
+    <dl>
+      <dt>Space</dt><dd>Play / Pause</dd>
+      <dt>&uarr; &darr;</dt><dd>Nudge up / down</dd>
+      <dt>R</dt><dd>Restart from top</dd>
+      <dt>F</dt><dd>Toggle fullscreen</dd>
+      <dt>?</dt><dd>Show / hide this panel</dd>
+      <dt>Esc</dt><dd>Close / exit fullscreen</dd>
+    </dl>
+    <div class="hint">Click anywhere to dismiss</div>
+  </div>
+</div>
 
 <script>
   // ── DOM refs ──
@@ -498,6 +694,15 @@
   const speedValue      = document.getElementById('speed-value');
   const fontSizeSlider  = document.getElementById('font-size-slider');
   const fontSizeValue   = document.getElementById('font-size-value');
+  const wpmReadout      = document.getElementById('wpm-readout');
+  const restartBtn      = document.getElementById('restart-btn');
+  const flipXBtn        = document.getElementById('flip-x-btn');
+  const flipYBtn        = document.getElementById('flip-y-btn');
+  const fullscreenBtn   = document.getElementById('fullscreen-btn');
+  const helpBtn         = document.getElementById('help-btn');
+  const helpOverlay     = document.getElementById('help-overlay');
+
+  const STORAGE_KEY = 'scroller:script';
 
   // ── State ──
   const state = {
@@ -678,26 +883,53 @@
     applyScroll();
   }
 
+  // ── localStorage persistence ──
+  function saveScript() {
+    try { localStorage.setItem(STORAGE_KEY, state.text); } catch (e) {}
+  }
+
+  function loadScript() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved !== null) state.text = saved;
+    } catch (e) {}
+  }
+
   // ── Input: live text update ──
   scriptInput.addEventListener('input', () => {
     state.text = scriptInput.value;
     state.atEnd = false;
     renderPrompterText();
+    saveScript();
+    updateWpm();
   });
+
+  // ── WPM computation ──
+  function updateWpm() {
+    const words = (state.text.match(/\S+/g) || []).length;
+    const textH = prompterText.offsetHeight;
+    if (!words || !textH) { wpmReadout.textContent = '— wpm'; return; }
+    const pxPerSec = speedToPxPerSecond(state.speed);
+    const secondsTotal = textH / pxPerSec;
+    const wpm = Math.round(words / (secondsTotal / 60));
+    wpmReadout.textContent = wpm + ' wpm';
+  }
 
   // ── Speed slider ──
   speedSlider.addEventListener('input', () => {
     state.speed = parseInt(speedSlider.value);
     speedValue.textContent = state.speed;
+    updateWpm();
   });
 
   // ── Font size slider ──
   fontSizeSlider.addEventListener('input', () => {
     state.fontSize = parseInt(fontSizeSlider.value);
-    fontSizeValue.textContent = state.fontSize + 'px';
+    fontSizeValue.textContent = state.fontSize;
     prompterText.style.fontSize   = state.fontSize + 'px';
     prompterText.style.lineHeight = (state.fontSize * 1.55) + 'px';
     renderPrompterText();
+    updateWpm();
   });
 
   // ── Play/Pause button ──
@@ -705,22 +937,35 @@
 
   // ── Keyboard shortcuts ──
   document.addEventListener('keydown', (e) => {
+    // Escape always works (close help / exit fullscreen)
+    if (e.key === 'Escape') {
+      if (helpOverlay.classList.contains('visible')) { hideHelp(); return; }
+      if (document.body.classList.contains('fullscreen')) { toggleFullscreen(); return; }
+    }
+
     if (document.activeElement === scriptInput) return;
+
     if (e.code === 'Space') {
       e.preventDefault();
       togglePlayPause();
+      return;
     }
     if (e.code === 'ArrowUp') {
       e.preventDefault();
       state.scrollY = Math.min(0, state.scrollY + 80);
       applyScroll();
+      return;
     }
     if (e.code === 'ArrowDown') {
       e.preventDefault();
       const limit = maxScroll();
       state.scrollY = Math.max(limit, state.scrollY - 80);
       applyScroll();
+      return;
     }
+    if (e.key === 'r' || e.key === 'R') { restartScroll(); return; }
+    if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); return; }
+    if (e.key === '?' || (e.shiftKey && e.key === '/')) { toggleHelp(); return; }
   });
 
   // ── Resize observer ──
@@ -749,36 +994,82 @@
     state.speed = Math.max(1, state.speed - 1);
     speedSlider.value = state.speed;
     speedValue.textContent = state.speed;
+    updateWpm();
   });
 
   speedIncrease.addEventListener('click', () => {
     state.speed = Math.min(10, state.speed + 1);
     speedSlider.value = state.speed;
     speedValue.textContent = state.speed;
+    updateWpm();
   });
 
   sizeDecrease.addEventListener('click', () => {
-    state.fontSize = Math.max(40, state.fontSize - 8);
+    state.fontSize = Math.max(40, state.fontSize - 4);
     fontSizeSlider.value = state.fontSize;
-    fontSizeValue.textContent = state.fontSize + 'px';
+    fontSizeValue.textContent = state.fontSize;
     prompterText.style.fontSize = state.fontSize + 'px';
     prompterText.style.lineHeight = (state.fontSize * 1.55) + 'px';
     renderPrompterText();
+    updateWpm();
   });
 
   sizeIncrease.addEventListener('click', () => {
-    state.fontSize = Math.min(96, state.fontSize + 8);
+    state.fontSize = Math.min(96, state.fontSize + 4);
     fontSizeSlider.value = state.fontSize;
-    fontSizeValue.textContent = state.fontSize + 'px';
+    fontSizeValue.textContent = state.fontSize;
     prompterText.style.fontSize = state.fontSize + 'px';
     prompterText.style.lineHeight = (state.fontSize * 1.55) + 'px';
     renderPrompterText();
+    updateWpm();
   });
 
+  // ── Restart ──
+  function restartScroll() {
+    state.scrollY = 0;
+    state.atEnd   = false;
+    applyScroll();
+    if (state.isPlaying) {
+      state.lastTimestamp = null;
+    } else {
+      pauseScrolling();
+    }
+  }
+  restartBtn.addEventListener('click', restartScroll);
+
+  // ── Flip / mirror modes ──
+  function toggleFlipX() {
+    prompterViewport.classList.toggle('flip-x');
+    flipXBtn.classList.toggle('active', prompterViewport.classList.contains('flip-x'));
+  }
+  function toggleFlipY() {
+    prompterViewport.classList.toggle('flip-y');
+    flipYBtn.classList.toggle('active', prompterViewport.classList.contains('flip-y'));
+  }
+  flipXBtn.addEventListener('click', toggleFlipX);
+  flipYBtn.addEventListener('click', toggleFlipY);
+
+  // ── Fullscreen ──
+  function toggleFullscreen() {
+    const on = document.body.classList.toggle('fullscreen');
+    fullscreenBtn.classList.toggle('active', on);
+    setTimeout(() => { updateMirrorWidth(); renderPrompterText(); updateWpm(); }, 20);
+  }
+  fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+  // ── Help overlay ──
+  function showHelp()  { helpOverlay.classList.add('visible'); }
+  function hideHelp()  { helpOverlay.classList.remove('visible'); }
+  function toggleHelp(){ helpOverlay.classList.toggle('visible'); }
+  helpBtn.addEventListener('click', toggleHelp);
+  helpOverlay.addEventListener('click', hideHelp);
+
   // ── Init ──
+  loadScript();
   updateMirrorWidth();
   scriptInput.value = state.text;
   renderPrompterText();
+  requestAnimationFrame(updateWpm);
 </script>
 
 </body>
