@@ -6,14 +6,14 @@ I have tasked you with building a polished, modern, engaging, single-file telepr
 
 ## 1. Layout Architecture
 
-- **App Header (44px):** Dark bar, `flex-shrink: 0`. Small uppercase title `SCROLLER` followed by a `/` separator and tagline. Bordered bottom with a subtle white-alpha line.
+- **App Header (44px):** Dark bar with a subtle vertical gradient (`linear-gradient(180deg, #17171c, #121215)`) and a faint inset top highlight (`inset 0 1px 0 rgba(255,255,255,0.03)`), `flex-shrink: 0`. Leading 10×10 gradient logo mark (`linear-gradient(135deg, --accent-hi, --accent-lo)`, 2px radius, subtle glow). Small uppercase title `SCROLLER` (letter-spacing `0.12em`) followed by a `/` separator and tagline. Bordered bottom with a subtle white-alpha line.
 - **Workspace:** `flex: 1; display: flex; min-height: 0;`.
-- **Editor Panel:** Width 34% (min 260px, max 480px). Background `#fafaf9`. Light, with a small uppercase `SCRIPT` label, a full-height textarea (JetBrains Mono, 13px, line-height 1.65), and a thin footer containing a `v1.2.0` version string.
-- **Collapse Mechanism:** Purple 16×64 tab on the right edge of the editor panel (`.collapse-btn`). Clicking it toggles a `.collapsed` class that sets the panel's `width` and `min-width` to `0` via a 0.3s cubic-bezier transition. The tab stays visible when collapsed so the user can re-expand.
+- **Editor Panel:** Width 34% (min 260px, max 480px). Background `#fbfbfa` (warm off-white), with `box-shadow: inset -1px 0 0 rgba(0,0,0,0.04), 1px 0 0 rgba(0,0,0,0.2)` for an elegant edge against the dark stage. Small uppercase `SCRIPT` label, full-height textarea (JetBrains Mono, 13.5px, line-height 1.7), and a thin footer (`justify-content: space-between`) containing a `v1.2.0` version string on the left and a live `N words · M chars` stats readout on the right (both JetBrains Mono, muted).
+- **Collapse Mechanism:** Indigo 16×64 tab on the right edge of the editor panel (`.collapse-btn`). Clicking it toggles a `.collapsed` class that sets the panel's `width` and `min-width` to `0` via a 0.3s cubic-bezier transition. The tab stays visible when collapsed so the user can re-expand.
 - **Prompter Panel:** `flex: 1; display: flex; flex-direction: column; position: relative; overflow: hidden;` with background `--bg-deep`.
-- **Controls Bar (Overlay):** `position: absolute; top: 0; left: 0; right: 0; z-index: 10;` inside the prompter panel. Semi-transparent dark gradient + `backdrop-filter: blur(16px)` so prompter text is visible faintly behind it. Padded `14px 24px 16px` with `gap: 12px`.
-- **Prompter Viewport:** `flex: 1; overflow: hidden; position: relative; cursor: pointer; padding: 96px 10% 0;` — the 96px top padding keeps text from sliding under the controls bar.
-- **Top & Bottom Fades:** `.prompter-panel::before` (top, 72px) and `.prompter-panel::after` (bottom, 120px) paint linear gradients from `--bg-deep` to transparent, so text softly fades in and out at the edges of the stage.
+- **Controls Bar (Overlay):** `position: absolute; top: 0; left: 0; right: 0; z-index: 10;` inside the prompter panel. Semi-transparent dark gradient + `backdrop-filter: blur(16px)` so prompter text is visible faintly behind it. Padded `12px 22px` with `gap: 14px`. Finished with `box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 0 rgba(0,0,0,0.4)` for a subtle bevel.
+- **Prompter Viewport:** `flex: 1; overflow: hidden; position: relative; cursor: pointer; padding: 112px max(8%, 48px) 0;` — the top padding keeps text from sliding under the controls bar.
+- **Top & Bottom Fades:** `.prompter-panel::before` (top, 140px, starting at `top: 58px`) and `.prompter-panel::after` (bottom, 160px) paint smooth multi-stop linear gradients from `--bg-deep` to transparent, so text softly emerges and dissolves at the edges of the stage.
 
 ---
 
@@ -47,13 +47,15 @@ Sync the editor cursor to the prompter without using percentages.
 All controls sit in a single horizontal flex row. Every interactive element is **34px tall** for visual consistency.
 
 Left group (playback):
-1. **Play / Pause pill** — 92×34 indigo pill, white text `▶ Play`. Toggles `.playing` class which turns it red with `⏸ Pause` label.
+1. **Play / Pause pill** — 92×34 indigo pill rendered with a three-stop vertical gradient (`linear-gradient(180deg, --accent-hi, --accent, --accent-lo)`), inset top highlight + inset bottom shadow, and a soft outer drop-shadow. Hover brightens via `filter: brightness(1.08)` and expands the accent glow; active press adds `translateY(1px)`. Toggles `.playing` class which swaps the gradient to the red palette (`--red-hi/--red/--red-lo`) with `⏸ Pause` label.
 2. **Restart icon button** (`↺`) — 34×34 dark icon button. Jumps `scrollY` back to 0 and clears `atEnd` without un-pausing.
 3. **Vertical divider** — 1×24 subtle rule with 6px margin on each side.
 
-Center groups (settings chips — dark rounded pills with a thin border):
+Center groups (settings chips — dark rounded pills with a thin border and an `inset 0 1px 0 rgba(255,255,255,0.035)` bevel):
 4. **Speed chip:** uppercase `SPEED` label, `−` button, range slider (1–10, width 96px), `+` button, numeric value, then a vertical rule and a **WPM readout** (`162 wpm`) computed live from word count ÷ (textHeight / speed-in-px/s).
 5. **Size chip:** uppercase `SIZE` label, `−` button, range slider (40–96, `step="2"`, width 88px), `+` button, numeric value (no "px" suffix). The `−/+` buttons step by 4px.
+
+Range sliders render a **filled progress track**: the track background is a four-stop gradient keyed off a CSS custom property `--fill` (percentage), so the accent color fills from the left up to the thumb. Update `--fill` on every `input` event (and on load) via `el.style.setProperty('--fill', pct + '%')`. Thumbs are 14×14 white-gradient circles with a 2px accent ring and a soft drop-shadow; hover expands to a 6px accent-soft halo and scales `1.1`.
 
 Spacer (`flex: 1`).
 
@@ -62,13 +64,13 @@ Right group (modes):
 7. **Vertical divider.**
 8. **Fullscreen / Help icon-btn-group:** `⛶` toggles `body.fullscreen` (hides header + editor panel via CSS); `?` toggles a help overlay.
 
-All icon buttons share a single `.icon-btn` style: 34×34, subtle white-alpha background, subtle border, light-gray glyph that brightens on hover/active. Active state uses `--accent-soft` background + indigo border.
+All icon buttons share a single `.icon-btn` style: 34×34, subtle white-alpha background, subtle border, light-gray glyph that brightens on hover/active. `:active` applies `transform: scale(0.94)` for tactile feedback. Active-state toggled buttons use `--accent-soft` background + indigo border.
 
 ---
 
 ## 5. Stage Features
 
-- **Reading line indicator:** an absolutely-positioned `.reading-line` div inside the viewport at `top: 38%`, drawn as a dashed indigo rule (`border-top: 1px dashed rgba(99,102,241,0.35)`) with indigo triangle markers (`::before` / `::after`) at its left and right edges. Pointer-events none.
+- **Reading line indicator:** an absolutely-positioned 1px `.reading-line` div inside the viewport at `top: 38%`, drawn as a horizontal gradient that fades in at both ends (`linear-gradient(to right, transparent, rgba(124,126,245,0.5) 50%, transparent)`) with a soft outer glow (`box-shadow: 0 0 8px var(--accent-glow)`) and small indigo triangle markers (`::before` / `::after`, 4px borders, `drop-shadow` glow) at its left and right edges. Pointer-events none.
 - **Click-to-seek on the stage:** clicking inside the viewport computes the click's Y relative to the text, then repositions `scrollY` so the clicked line lands at the 50% vertical center, clamps, applies, and pauses playback.
 - **localStorage persistence:** on every `input` event, save `state.text` under key `scroller:script`. On init, read it back and pre-fill the textarea + state before the first render. Wrap `localStorage` access in try/catch so private-mode failures are silent.
 - **Fullscreen mode:** `body.fullscreen` rule hides `header` and `.editor-panel`. Toggled by the fullscreen button or the `F` key. After toggling, schedule an `updateMirrorWidth() / renderPrompterText() / updateWpm()` so layout settles.
@@ -100,14 +102,18 @@ Gate all shortcuts so they don't fire while the editor textarea is focused (exce
 --bg-hover:     #222228
 --border-subtle: rgba(255,255,255,0.06)
 --border-medium: rgba(255,255,255,0.10)
---text-primary:  #f0f0f2
+--text-primary:  #e8e8ec
 --text-secondary:#8a8a96
 --text-muted:    #55555f
---accent:        #6366f1   /* indigo: primary action */
---accent-soft:   rgba(99,102,241,0.15)
---accent-glow:   rgba(99,102,241,0.40)
+--accent:        #5b5ef0   /* warm electric indigo: primary action */
+--accent-hi:     #7c7ef5
+--accent-lo:     #4a4de0
+--accent-soft:   rgba(91,94,240,0.15)
+--accent-glow:   rgba(91,94,240,0.40)
 --red:           #f43f5e   /* playing state */
---editor-bg:     #fafaf9
+--red-hi:        #f75c77
+--red-lo:        #dc2a48
+--editor-bg:     #fbfbfa
 --editor-text:   #2c2c30
 --editor-border: #e8e8e6
 --radius-sm: 6px
@@ -117,8 +123,8 @@ Gate all shortcuts so they don't fire while the editor textarea is focused (exce
 --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1)
 ```
 
-- **Prompter text:** Instrument Sans, weight 500, letter-spacing `-0.01em`, line-height 1.55, default 48px.
-- **Editor textarea:** JetBrains Mono, 13px, line-height 1.65, indigo caret.
+- **Prompter text:** Instrument Sans, weight 500, letter-spacing `-0.015em`, line-height 1.5, default 48px, `text-wrap: pretty`, `max-width: 1100px; margin: 0 auto` so long lines don't sprawl on wide screens.
+- **Editor textarea:** JetBrains Mono, 13.5px, line-height 1.7, indigo caret.
 - **UI labels & buttons:** Instrument Sans; numeric readouts (`5`, `48`, `162 wpm`, version) in JetBrains Mono.
 
 ---
@@ -133,4 +139,5 @@ Gate all shortcuts so they don't fire while the editor textarea is focused (exce
 - All `localStorage` access wrapped in try/catch.
 - The prompter's `.prompter-text` should have `user-select: none` so selection doesn't interfere with click-to-seek.
 - Ensure the reading-line indicator, flip modes, restart, fullscreen, help overlay, and WPM readout are all functional and accessible via both mouse and keyboard.
-- Version the app as `v1.2.0` in the editor footer.
+- Version the app as `v1.2.0` in the editor footer, alongside a live `N words · M chars` stats readout kept in sync with every `input` event and on initial load.
+- Update each range slider's `--fill` custom property on every input change and on initial load so the filled-track gradient stays aligned with the thumb.
