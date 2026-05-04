@@ -44,6 +44,15 @@
     atEnd: false,
   };
 
+  // ── Version (single source of truth: package.json) ──
+  fetch('package.json', { cache: 'no-cache' })
+    .then((r) => r.ok ? r.json() : null)
+    .then((pkg) => {
+      const el = $('app-version');
+      if (el && pkg && pkg.version) el.textContent = 'v' + pkg.version;
+    })
+    .catch(() => {});
+
   // ── Hash-link encode/decode (gzip + base64url) ──
   async function encodeScript(text) {
     const stream = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'));

@@ -1,6 +1,6 @@
 # Scroller
 
-**v0.2.1** — The dumb teleprompter you never knew you wanted.
+**v0.3.0** — The dumb teleprompter you never knew you wanted.
 
 A small, fast, no-build teleprompter for the web. Paste a script on the left, scroll it on the right. Vanilla HTML/CSS/JS — no framework, no bundler, no dependencies beyond Google Fonts.
 
