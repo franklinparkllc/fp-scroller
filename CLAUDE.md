@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## Project
 
-**Scroller** — a vanilla HTML/CSS/JS teleprompter. No build step, no dependencies beyond Google Fonts via CDN. Open `index.html` directly or serve with `python3 -m http.server`.
+**Scroller** (v0.2.1) — a vanilla HTML/CSS/JS teleprompter. No build step, no dependencies beyond Google Fonts via CDN. Open `index.html` directly or serve with `python3 -m http.server`.
 
 ## Files
 

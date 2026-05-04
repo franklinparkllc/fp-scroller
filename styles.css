@@ -266,8 +266,8 @@ body{
   flex-shrink:0;
   background:#fbf8f0;
   border-top:1px solid var(--hairline-2);
-  padding:14px 18px;
-  display:flex; align-items:center; gap:12px;
+  padding:16px 24px;
+  display:flex; align-items:center; gap:18px;
   flex-wrap:wrap;
 }
 
@@ -310,10 +310,10 @@ body{
 }
 
 .knob{
-  height:48px; padding:0 14px;
+  height:48px; padding:0 18px;
   background:#fff; border:1px solid var(--hairline-2);
   border-radius:10px;
-  display:flex; align-items:center; gap:10px;
+  display:flex; align-items:center; gap:14px;
   box-shadow:var(--shadow-sm);
   flex-shrink:0;
 }
@@ -370,8 +370,8 @@ input[type=range]::-moz-range-thumb{
 .icon-btn:active{transform:scale(0.94)}
 .icon-btn.is-active{background:var(--amber); border-color:var(--amber-2); color:#fff}
 
-.desk-spacer{flex:1; min-width:8px}
-.desk-group{display:flex; gap:8px; flex-shrink:0}
+.desk-spacer{flex:1; min-width:16px}
+.desk-group{display:flex; gap:10px; flex-shrink:0}
 
 /* ── Help overlay ── */
 .help-overlay{
