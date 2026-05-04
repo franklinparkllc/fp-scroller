@@ -27,6 +27,19 @@ Guidance for Claude Code when working in this repository.
 
 **Collapse** animates `width → 0` on `.editor` and slides `.collapse-btn` from `right:-13px` to `-26px` so the toggle stays visible past the seam. After the 320ms transition we re-run `updateMirrorWidth()` and `render()`.
 
+## Sharing / save
+
+Scripts can be saved by **bookmarking the page** — the script lives in `location.hash` as `#s=<gzip+base64url>`.
+
+- On load: if `#s=` is present, decode and load (overrides `localStorage`).
+- On edit: debounced (~600ms) `history.replaceState` keeps the URL current so Cmd+D bookmarks the latest. No new history entries are created.
+- Share button (`#share-btn`): copies the URL to clipboard with a "Copied" flash.
+- Encoding helpers: `encodeScript` / `decodeScript` in `app.js` use `CompressionStream('gzip')`. Practical link size limit ~2000 words.
+
+## Deploy
+
+Railway (not GitHub Pages). `package.json` `start` script runs `npx serve` on `$PORT`; `railway.json` declares the start command. No build step.
+
 ## Conventions
 
 - Keep it dependency-free. No npm, no bundler.

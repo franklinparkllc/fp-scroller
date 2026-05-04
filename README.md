@@ -29,6 +29,7 @@ app.js       state, scrolling engine, editor↔prompter sync, shortcuts
 - **Fullscreen** mode hides chrome.
 - **Collapsible script panel** for a wider stage.
 - **Autosave** to `localStorage` — your script survives reloads.
+- **Share / save via bookmarks.** Your script lives in the URL hash (gzip + base64url). Bookmark the page (Cmd/Ctrl+D) to save a script; click the bookmark to load it. Click the **Link** button to copy a shareable URL. Practical limit ~2000 words per link.
 
 ## Keyboard
 
@@ -44,6 +45,16 @@ app.js       state, scrolling engine, editor↔prompter sync, shortcuts
 ## Customizing
 
 Most knobs live as CSS variables at the top of `styles.css` (`--paper`, `--ink`, `--amber`, etc.). Speed curve, reading-line position, and default text live near the top of `app.js`.
+
+## Deploy
+
+Hosted on Railway as a static site. Local equivalent:
+
+```
+npm start    # runs `npx serve` on $PORT (default 5197 locally)
+```
+
+Railway picks up `railway.json` + `package.json` automatically — no build step.
 
 ## Browser
 

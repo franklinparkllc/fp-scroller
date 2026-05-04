@@ -23,6 +23,7 @@
   const editorPanel   = $('editor-panel');
   const collapseBtn   = $('collapse-btn');
   const editorStats   = $('editor-stats');
+  const shareBtn      = $('share-btn');
 
   const STORAGE_KEY = 'scroller:script:v2';
   const READING_RATIO = parseFloat(viewport.dataset.readingPos || '0.38');
@@ -43,12 +44,42 @@
     atEnd: false,
   };
 
+  // ── Hash-link encode/decode (gzip + base64url) ──
+  async function encodeScript(text) {
+    const stream = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'));
+    const buf = await new Response(stream).arrayBuffer();
+    let bin = '';
+    const bytes = new Uint8Array(buf);
+    for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  }
+  async function decodeScript(s) {
+    const bin = atob(s.replace(/-/g,'+').replace(/_/g,'/'));
+    const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return new Response(stream).text();
+  }
+
   // ── Persistence ──
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved !== null) state.text = saved;
   } catch (e) {}
   scriptInput.value = state.text;
+
+  // If URL has #s=..., load that script (overrides localStorage).
+  if (location.hash.startsWith('#s=')) {
+    decodeScript(location.hash.slice(3))
+      .then((text) => {
+        state.text = text;
+        scriptInput.value = text;
+        try { localStorage.setItem(STORAGE_KEY, text); } catch(e) {}
+        render();
+        updateStats();
+        requestAnimationFrame(updateWpm);
+      })
+      .catch(() => {});
+  }
 
   // ── Helpers ──
   function speedToPxPerSec(v) { return Math.round(3.6 * Math.pow(v, 1.5)); }
@@ -195,6 +226,22 @@
     applyScroll();
   }
 
+  // ── Debounced URL hash update so Cmd+D bookmarks the latest script ──
+  let hashTimer = null;
+  function scheduleHashUpdate() {
+    clearTimeout(hashTimer);
+    hashTimer = setTimeout(async () => {
+      try {
+        if (state.text.trim() === '') {
+          if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+          return;
+        }
+        const enc = await encodeScript(state.text);
+        history.replaceState(null, '', '#s=' + enc);
+      } catch (e) {}
+    }, 600);
+  }
+
   // ── Events ──
   scriptInput.addEventListener('input', () => {
     state.text = scriptInput.value;
@@ -203,6 +250,7 @@
     updateStats();
     requestAnimationFrame(updateWpm);
     try { localStorage.setItem(STORAGE_KEY, state.text); } catch (e) {}
+    scheduleHashUpdate();
   });
   scriptInput.addEventListener('click', syncFromCaret);
   scriptInput.addEventListener('keyup', (e) => {
@@ -245,6 +293,24 @@
     setTimeout(() => { updateMirrorWidth(); render(); updateWpm(); }, 30);
   }
   fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+  // ── Share / copy link ──
+  shareBtn.addEventListener('click', async () => {
+    if (state.text.trim() === '') return;
+    try {
+      const enc = await encodeScript(state.text);
+      const url = location.origin + location.pathname + '#s=' + enc;
+      history.replaceState(null, '', '#s=' + enc);
+      await navigator.clipboard.writeText(url);
+      const orig = shareBtn.textContent;
+      shareBtn.classList.add('is-active');
+      shareBtn.textContent = 'Copied';
+      setTimeout(() => {
+        shareBtn.classList.remove('is-active');
+        shareBtn.textContent = orig;
+      }, 1200);
+    } catch (e) {}
+  });
 
   // ── Collapse ──
   function setCollapsed(collapsed) {
