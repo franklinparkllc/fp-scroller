@@ -1,79 +1,50 @@
-# Scroller – A Web Teleprompter
+# Scroller
 
-A lightweight, distraction-free teleprompter application built with vanilla HTML, CSS, and JavaScript. Perfect for content creators, presenters, and anyone needing smooth scrolling with precise control.
+The dumb teleprompter you never knew you wanted.
+
+A small, fast, no-build teleprompter for the web. Paste a script on the left, scroll it on the right. Vanilla HTML/CSS/JS — no framework, no bundler, no dependencies beyond Google Fonts.
+
+## Run it
+
+```
+python3 -m http.server 5174
+```
+
+Open <http://localhost:5174/>. Or just double-click `index.html`.
+
+## Files
+
+```
+index.html   markup only
+styles.css   Studio theme — warm shell, recessed dark screen, amber accent
+app.js       state, scrolling engine, editor↔prompter sync, shortcuts
+```
 
 ## Features
 
-- **Live Script Editing**: Edit your script on the left and see it instantly in the prompter display
-- **Smooth Scrolling**: Configurable speed control (1–10) with exponential scaling
-- **Font Size Control**: Adjust text size from 40px to 96px for visibility
-- **Editor-to-Prompter Sync**: Click or navigate in the editor to jump the prompter to that position
-- **Click-to-Seek**: Click anywhere on the prompter text to center and pause at that location
-- **Gradient Overlays**: Polished fade effects at top and bottom of the display
-- **Collapsible Editor Panel**: Hide the left panel for full-screen prompter viewing
-- **Keyboard Shortcuts**:
-  - `Space`: Play/Pause scrolling
-  - `Arrow Up`: Scroll up (80px)
-  - `Arrow Down`: Scroll down (80px)
-- **Auto-Restart**: Scrolling automatically resets to the top after reaching the end
-- **Modern UI**: Dark theme with frosted glass controls and polished interactions
+- **Live editor → prompter sync.** Click in the script and the prompter cues that line just below the reading band, ready to scroll up into it.
+- **Click-to-seek on the prompter.** Click any line to jump to it.
+- **Speed (1–10) and size (36–96px)** with a live WPM readout in the rail.
+- **Mirror / flip** for beam-splitter rigs.
+- **Fullscreen** mode hides chrome.
+- **Collapsible script panel** for a wider stage.
+- **Autosave** to `localStorage` — your script survives reloads.
 
-## How to Use
+## Keyboard
 
-1. **Open** `index.html` in any modern web browser
-2. **Paste or type** your script into the left panel
-3. **Adjust settings** using the top controls:
-   - **Speed**: 1 (slow) to 10 (fast) — use `+`/`−` buttons or drag the slider
-   - **Size**: 40px to 96px — use `+`/`−` buttons or drag the slider
-4. **Click Play** or press `Space` to start scrolling
-5. **Click in the prompter** to jump to that text and pause
-6. **Click the `‹` button** on the editor panel to collapse it for full-screen viewing
+| Key       | Action                  |
+|-----------|-------------------------|
+| Space     | Play / Pause            |
+| ↑ / ↓     | Nudge up / down         |
+| R         | Restart from top        |
+| F         | Toggle fullscreen       |
+| ?         | Show shortcuts          |
+| Esc       | Close help / exit FS    |
 
-## Layout
+## Customizing
 
-- **Header**: App title and tagline
-- **Left Panel**: Script input textarea with version footer (collapsible)
-- **Right Panel**: Teleprompter display with frosted glass control bar
-- **Controls**: Play/Pause button, Speed slider, Font size slider
+Most knobs live as CSS variables at the top of `styles.css` (`--paper`, `--ink`, `--amber`, etc.). Speed curve, reading-line position, and default text live near the top of `app.js`.
 
-## Technologies
+## Browser
 
-- **HTML5**: Semantic structure
-- **CSS3**: Modern styling with CSS Grid, Flexbox, gradients, and backdrop blur
-- **Vanilla JavaScript**: No dependencies — pure DOM manipulation and `requestAnimationFrame` for animation
-
-## Browser Support
-
-Works on all modern browsers that support:
-- CSS Grid and Flexbox
-- CSS Transforms and backdrop-filter
-- ResizeObserver API
-- ES6+ JavaScript
-
-Tested on: Chrome, Firefox, Safari, Edge
-
-## Keyboard Controls
-
-| Key | Action |
-|-----|--------|
-| `Space` | Play/Pause scrolling |
-| `Arrow Up` | Manual scroll up (80px) |
-| `Arrow Down` | Manual scroll down (80px) |
-
-## Customization
-
-All styling is inline in the `<style>` block. Common modifications:
-
-- **Colors**: Edit CSS variables (`:root` section) for dark theme
-- **Font Family**: Change `--font-family` or update Google Fonts import
-- **Speed Range**: Modify slider min/max or adjust `speedToPxPerSecond()` formula
-- **Font Size Range**: Adjust `#font-size-slider` min/max attributes and clamping in button handlers
-- **Reading Line Position**: Change `readingY = viewH * 0.38` in the `maxScroll()` function
-- **Default Text**: Modify `state.text` initialization
-
-## Technical Details
-
-- **Scrolling**: Uses exponential speed formula (`3.51 * v^1.5`) for natural pacing across 1–10 range
-- **Text Measurement**: Hidden mirror div measures textarea caret position for accurate editor-to-prompter sync
-- **Performance**: `requestAnimationFrame` for 60fps smooth scrolling, `ResizeObserver` for responsive mirror width
-- **Reading Position**: Set at 38% from viewport top (configurable in `maxScroll()` function)
+Modern Chrome/Firefox/Safari/Edge. Uses `requestAnimationFrame`, `ResizeObserver`, and CSS variables.

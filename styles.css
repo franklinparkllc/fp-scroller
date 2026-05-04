@@ -208,7 +208,9 @@ body{
 .viewport{
   position:absolute; inset:0;
   overflow:hidden; cursor:pointer;
-  padding:18vh max(7%, 56px) 0;
+  /* padding-top must match the reading band top (.band top: 34%) so that
+     scrollY=0 cues the first line right at the band, not above it. */
+  padding:34% max(7%, 56px) 0;
 }
 .viewport.flip-x{transform:scaleX(-1)}
 .viewport.flip-y{transform:scaleY(-1)}
